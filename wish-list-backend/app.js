@@ -19,6 +19,8 @@ mongoose.connect(config.MONGODB_URI,
 
 app.use(cors());
 app.use(express.json());
+// search for matching path for GET requests from static frontend build file
+app.use(express.static('build'));
 
 // use wishRouter object for handling queries to the path specified
 app.use('/api/wishes', wishRouter);
