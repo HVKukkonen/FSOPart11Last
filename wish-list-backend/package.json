@@ -10,7 +10,9 @@
     "build:ui": "cd ../wish-list-frontend && npm run build --prod",
     "copy:build": "xcopy \"../wish-list-frontend/build\" \"./build\" /Y/E/I",
     "push:backend": "git add . && git commit -m heroku_add && git push",
-    "deploy:heroku": "git push heroku main"
+    "deploy:heroku": "git push heroku main",
+    "deploy:full": "npm run build:ui && npm run copy:build && npm run push:backend && npm run deploy:heroku",
+    "logs:prod": "heroku logs --tail"
   },
   "keywords": [
     "boss",
