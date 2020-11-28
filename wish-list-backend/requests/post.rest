@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/wishes/
+content-type: application/json
+
+{
+  "name": "Susun paketti",
+  "description": "Iso paketti full of warmth",
+  "url": "susu.pop",
+  "taken": 0
+}

@@ -1,0 +1,9 @@
+PUT http://localhost:3003/api/wishes/5fb3dcbe5a89515230710a73
+content-type: application/json
+
+{
+  "name": "Susun paketti 2",
+  "description": "Isompi paketti full of warmth",
+  "url": "susu.pop",
+  "taken": 1
+}
