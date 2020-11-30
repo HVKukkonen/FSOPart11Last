@@ -12,7 +12,7 @@ const app = express();
 const wishRouter = require('./controllers/wishes');
 const logger = require('./utils/logger');
 
-console.log('MDb_URI', config.MONGODB_URI);
+console.log('Mongo Db_URI', config.MONGODB_URI);
 mongoose
   .connect(config.MONGODB_URI,
     {
