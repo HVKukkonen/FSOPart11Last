@@ -1,1 +1,1 @@
-GET http://localhost:3003/api/wishes/
+GET https://christmas-wish-list.herokuapp.com/api/wishes/
