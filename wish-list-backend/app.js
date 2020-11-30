@@ -10,21 +10,26 @@ const config = require('./utils/config');
 const app = express();
 // intialise the router specified
 const wishRouter = require('./controllers/wishes');
+const logger = require('./utils/logger');
 
 console.log('MDb_URI', config.MONGODB_URI);
-mongoose.connect(config.MONGODB_URI,
-  {
-    useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true,
-  });
+mongoose
+  .connect(config.MONGODB_URI,
+    {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+      useFindAndModify: false,
+      useCreateIndex: true,
+    })
+  .then(() => logger.info('Mongo DB connection successful'))
+  .catch((error) => logger.error(error.response.data));
 
 app.use(cors());
-app.use(express.json());
 // search for matching path for GET requests from static frontend build file
 app.use(express.static('build'));
+app.use(express.json());
 
 // use wishRouter object for handling queries to the path specified
 app.use('/api/wishes', wishRouter);
-// app.use('/api/users', usersRouter)
-// app.use('/api/login', loginRouter)
 
 module.exports = app;
