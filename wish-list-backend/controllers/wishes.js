@@ -16,6 +16,7 @@ const WishedItem = require('../models/wish');
 // wishRouter.get('/', (request, response) => response.json(testData));
 
 wishRouter.get('/', (request, response) => {
+  console.log('backend: get received');
   WishedItem
     .find({})
     .then((blogs) => {
