@@ -4,25 +4,24 @@
 const wishRouter = require('express').Router();
 // import wish specified in models
 const WishedItem = require('../models/wish');
-// const User = require('../models/user')
-// const config = require('../utils/config')
 
-const testData = {
-  name: 'Susun paketti',
-  description: 'Iso paketti full of warmth',
-  url: 'susu.pop',
-  taken: 0,
-};
+// DUMMY DATA FOR TESTING
+// const testData = {
+//   name: 'Susun paketti',
+//   description: 'Iso paketti full of warmth',
+//   url: 'susu.pop',
+//   taken: 0,
+// };
 
-wishRouter.get('/', (request, response) => response.json(testData));
+// wishRouter.get('/', (request, response) => response.json(testData));
 
-// wishRouter.get('/', (request, response) => {
-//   WishedItem
-//     .find({})
-//     .then((blogs) => {
-//       response.json(blogs);
-//     });
-// });
+wishRouter.get('/', (request, response) => {
+  WishedItem
+    .find({})
+    .then((blogs) => {
+      response.json(blogs);
+    });
+});
 
 wishRouter.post('/', (request, response) => {
   const newWish = new WishedItem(request.body);

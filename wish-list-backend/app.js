@@ -11,7 +11,7 @@ const app = express();
 // intialise the router specified
 const wishRouter = require('./controllers/wishes');
 
-// const mongoUrl = 'mongodb://localhost/bloglist'
+console.log('MDb_URI', config.MONGODB_URI);
 mongoose.connect(config.MONGODB_URI,
   {
     useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true,
