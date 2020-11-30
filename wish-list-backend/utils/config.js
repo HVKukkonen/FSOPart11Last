@@ -8,7 +8,7 @@ const DbName = 'wishes';
 // password is in the .env file which is gitignored
 
 const MONGODB_URI =
-    "mongodb+srv://user:"+process.env.DbPassword+"@santacluster.hpfxd.mongodb.net/"+DbName+"?retryWrites=true&w=majority";
+    'mongodb+srv://user:'+process.env.DbPassword+'@santacluster.hpfxd.mongodb.net/'+DbName+'?retryWrites=true&w=majority';
 
 module.exports = {
   MONGODB_URI,
