@@ -13,6 +13,8 @@ const wishSchema = mongoose.Schema({
   description: String,
   url: String,
   taken: Number,
+  taker: { type: mongoose.Schema.Types.ObjectId, ref: 'Taker' },
+  wisher: { type: mongoose.Schema.Types.ObjectId, ref: 'Wisher' },
 });
 
 // reformat returned object

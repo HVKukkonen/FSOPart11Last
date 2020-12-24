@@ -1,0 +1,26 @@
+1. Santa Creation DONE
+2. Functionalities: Update... DONE
+3. Views based on user role DONE
+4. Visual polish
+	- Register/Login form button DONE
+	- Login: Clear form DONE
+5. User input error handling
+
+testtintin2
+t2
+
+testtiin3
+t3
+hRIHNfwrdl/5fe087aeed999046083b218a
+
+t3m2
+st
+
+santasusu
+s
+
+    // sanitise by allowing only normal characters & numbers
+    if (usernameHolder.search(illegalRegex) > 0 || usernameHolder.search(passwordHolder) > 0) {
+      window.alert('Input contains illegal symbols. Only characters and numbers allowed.');
+      return;
+    }

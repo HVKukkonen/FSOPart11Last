@@ -1,11 +1,13 @@
 /* eslint import/prefer-default-export: 0 */
 import axios from 'axios';
 
-// const baseUrl = 'http://localhost:3003/api/wishes/';
-const baseUrl = '/api/wishes';
+let baseUrl = '/api/wishes';
+if (process.env.NODE_ENV === 'development') {
+  baseUrl = 'http://localhost:3003/api/wishes';
+}
 
-const getAll = () => axios.get(baseUrl)
-  .then((response) => response.data);
+// send wisher (maybe different than user) as request to backend
+const getForWisher = (wisher) => axios.get(`${baseUrl}/${wisher}`);
 
 const create = (newObject) => axios.post(baseUrl, newObject);
 
@@ -15,6 +17,6 @@ const remove = (id) => axios.delete(`${baseUrl}/${id}`);
 
 // package backend methods and export
 const BackendWish = {
-  getAll, create, update, remove,
+  getForWisher, create, update, remove,
 };
 export { BackendWish };

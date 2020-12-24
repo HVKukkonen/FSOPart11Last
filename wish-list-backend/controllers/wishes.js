@@ -5,26 +5,23 @@ const wishRouter = require('express').Router();
 // import wish specified in models
 const WishedItem = require('../models/wish');
 
-// DUMMY DATA FOR TESTING
-// const testData = {
-//   name: 'Susun paketti',
-//   description: 'Iso paketti full of warmth',
-//   url: 'susu.pop',
-//   taken: 0,
-// };
+wishRouter.get('/:wisherId', (request, response, next) => {
+  console.log('get received at wish backend for request:', request.params.wisherId);
 
-// wishRouter.get('/', (request, response) => response.json(testData));
-
-wishRouter.get('/', (request, response) => {
-  console.log('backend: get received');
+  // request contains the wisher (maybe != logged user)
   WishedItem
-    .find({})
-    .then((blogs) => {
-      response.json(blogs);
+    .find({ wisher: request.params.wisherId })
+    .then((wishes) => {
+      response.json(wishes);
+    })
+    .catch((exception) => {
+      console.log('exception at wishrouter GET');
+      next(exception);
     });
 });
 
 wishRouter.post('/', (request, response) => {
+  console.log('Backend: Post received with request', request.body);
   const newWish = new WishedItem(request.body);
 
   // mongoose wish object interacts with the db
@@ -49,6 +46,8 @@ wishRouter.put('/:id', (request, response, next) => {
     description: request.body.description,
     url: request.body.url,
     taken: request.body.taken,
+    taker: request.body.taker,
+    wisher: request.body.wisher,
   };
 
   WishedItem

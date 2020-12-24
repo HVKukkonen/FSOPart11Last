@@ -10,9 +10,12 @@ const config = require('./utils/config');
 const app = express();
 // intialise the router specified
 const wishRouter = require('./controllers/wishes');
+const userRouter = require('./controllers/users');
+const loginRouter = require('./controllers/login');
 const logger = require('./utils/logger');
 
-console.log('Mongo Db_URI', config.MONGODB_URI);
+const errorHandler = require('./utils/error_handlers');
+
 mongoose
   .connect(config.MONGODB_URI,
     {
@@ -22,7 +25,7 @@ mongoose
       useCreateIndex: true,
     })
   .then(() => logger.info('Mongo DB connection successful'))
-  .catch((error) => logger.error(error.response.data));
+  .catch((error) => logger.error('Error at Mongo connection in app.js', error));
 
 app.use(cors());
 // search for matching path for GET requests from static frontend build file
@@ -31,5 +34,9 @@ app.use(express.json());
 
 // use wishRouter object for handling queries to the path specified
 app.use('/api/wishes', wishRouter);
+app.use('/api/users', userRouter);
+app.use('/api/login', loginRouter);
+
+app.use(errorHandler);
 
 module.exports = app;

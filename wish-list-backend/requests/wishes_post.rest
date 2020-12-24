@@ -1,0 +1,9 @@
+POST http://localhost:3003/api/wishes/
+Content-Type: application/json
+
+{
+  "name": "tepa",
+  "description": "tepastelija",
+  "url": "feifei.c",
+  "wisher": "5fdc99f79bd89b209078980c"
+}
