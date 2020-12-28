@@ -1,7 +1,6 @@
 /* eslint import/prefer-default-export: 0 */
 import axios from 'axios';
-
-const userErrorHandler = require('../../utils/error_handlers');
+import userErrorHandler from '../../utils/error_handlers/user_error_handler';
 
 let baseUrl = '/api/users';
 if (process.env.NODE_ENV === 'development') {

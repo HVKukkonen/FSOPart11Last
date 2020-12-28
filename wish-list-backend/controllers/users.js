@@ -27,10 +27,19 @@ userRouter.post('/', async (request, response, next) => {
 // get one instance
 userRouter.get('/:dbid', async (request, response, next) => {
   try {
-    console.log('requested id:', request.params.dbid);
     const userList = await User.find({ _id: request.params.dbid }).populate('WishedItem');
     // respond with user object
     response.json(userList[0]);
+  } catch (exception) {
+    next(exception);
+  }
+});
+
+// delete one
+userRouter.delete('/:id', async (request, response, next) => {
+  try {
+    await User.findByIdAndRemove(request.params.id);
+    response.status(204).end();
   } catch (exception) {
     next(exception);
   }

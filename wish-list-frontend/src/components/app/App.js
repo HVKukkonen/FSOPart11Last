@@ -1,5 +1,5 @@
 /* eslint consistent-return:0 */
-// const BackendWish = require('../../api/services/wishes.js');
+
 import { useEffect, useState } from 'react';
 import {
   BrowserRouter, Switch, Route, Link, Redirect,
@@ -125,8 +125,6 @@ const createUser = (username, password, role, linkedUsers, invitePass, wish, dbI
 // invite string is of form 'invitePasswordHash/wisher_dbID'
 const generateInvite = (wisher) => {
   const invite = `${wisher.invitePass}/${wisher.id}`;
-  console.log('invite:', invite);
-  console.log('wisher', wisher);
   window.alert(`Your invite is ${invite}`);
 };
 
@@ -144,6 +142,35 @@ const FormatRow = (wish, functionality, buttonname, hoverFunction, showTaken) =>
   <td><button onClick={() => functionality(wish.id)}>{buttonname}</button></td>
 </tr>;
 // ----------------------------------------------------------------------------------------------
+
+// display user for admin view
+const UserRow = (user, functionality, showUserWishes) => <tr className='untaken-row'>
+  <td>{user.username}</td>
+  <td><button onClick={() => functionality(user.id)}>delete</button></td>
+  <td><button onClick={() => showUserWishes(user)}>wishes</button></td>
+</tr>;
+
+// logout
+const LogOutButton = (setUser) => {
+  const logOut = () => {
+    // clear session credentials
+    window.localStorage.clear();
+    setUser({});
+  };
+
+  return <button onClick={() => logOut()}>Log out</button>;
+};
+
+// return to admin
+const ToAdminButton = (setWisher) => {
+  // reset wisher and redirect
+  const resetWisher = () => {
+    setWisher({});
+    return <Redirect to='../admin' />;
+  };
+
+  return <button onClick={() => resetWisher()}>Admin</button>;
+};
 
 const App = () => {
   // for sanitising user input
@@ -198,6 +225,22 @@ const App = () => {
     // parse wisher from invite string
     // invite string is of form 'invitePasswordHash/wisher_dbID
     if (inviteHolder) {
+      // admin creation
+      if (usernameHolder === 'admin') {
+        // verify creation through password api
+        if (await BackendLogin.requestToken({ adminSecret: inviteHolder })) {
+          newUser = await BackendUser
+            .create(createUser(usernameHolder, passwordHolder, 0));
+          if (newUser) {
+            setLoginView(1);
+          }
+        } else {
+          window.alert('admin is not allowed as a username');
+        }
+        return;
+      }
+
+      // santa creation
       let inviteAsList;
       try {
         inviteAsList = inviteHolder.split('/');
@@ -244,6 +287,16 @@ const App = () => {
   const [loggedUser, logUser] = useState({});
   const [token, setToken] = useState(''); /* eslint no-unused-vars:0 */
 
+  // log user in using session
+  useEffect(() => {
+    const userJSON = window.localStorage.getItem('user');
+    const tokenJSON = window.localStorage.getItem('token');
+    if (userJSON) {
+      logUser(JSON.parse(userJSON));
+      setToken(JSON.parse(tokenJSON));
+    }
+  }, []);
+
   // login form submit
   const loginFormSubmission = async (event) => {
     event.preventDefault();
@@ -254,32 +307,36 @@ const App = () => {
       password: passwordHolder,
     };
 
-    console.log('user requesting login:', inputUser);
     // send to login backend, receive user and token if valid
-    try {
-      const response = await BackendLogin.requestToken(inputUser);
+    const response = await BackendLogin.requestToken(inputUser);
+    if (response) {
       logUser(response.data.user);
       console.log('user logged details:', response.data.user);
       setToken(response.data.token);
-    } catch (exception) {
-      window.alert(exception);
+      // remember session
+      window.localStorage.setItem('user', JSON.stringify(response.data.user));
+      window.localStorage.setItem('token', JSON.stringify(response.data.user));
     }
   };
 
   // wisher for showing relevant wishes
   const [wisher, setWisher] = useState({});
 
+  // set the user the given user as wisher,
+  // needed for cases where wisher is not the user logged in
+  const setUserAsWisher = async (user) => {
+    setWisher(await BackendUser.getOne(user.id));
+  };
+
   // load wisher information from server
   useEffect(async () => {
-    console.log('Wisher set for', loggedUser);
     // logged in user is wisher
     if (loggedUser.role === 1) {
       setWisher(loggedUser);
     } else if (loggedUser.role === 2) {
       // logged in user is Santa
-      setWisher(await BackendUser.getOne(loggedUser.linkedUsers));
+      await setUserAsWisher(loggedUser.linkedUsers);
     }
-    console.log('Wisher is', wisher);
   }, [loggedUser]); // run effect after login
 
   // ----------------------------------------------WISHES---------------------------
@@ -288,20 +345,14 @@ const App = () => {
 
   // event hook for loading data from server
   useEffect(async () => {
-    console.log('note: the effect is run only after rendering');
-
-    console.log('Running setWishes for wisher', wisher);
-    console.log('Logged user at setW is', loggedUser);
-    // fetch wishes only for loggedin user
-    if (loggedUser.username && loggedUser.username.length > 0) {
-      console.log('setWishes sends request');
+    // fetch wishes only if wisher exists
+    if (wisher && wisher.username && wisher.username.length > 0) {
+      console.log('useEffect load of wishes for', wisher);
       const response = await BackendWish
         .getForWisher(wisher.id); // get only wishes of the wisher
       // .then((response) => setWishes(response)); // save the response of the promise
-      console.log('Response at setWishes', response);
       setWishes(response.data);
     }
-    console.log('wishes after load:', wishes);
   }, [wisher]); // run effect as wisher changed, i.e. after login
 
   // ------------------------------- WISHER -----------------------------
@@ -312,6 +363,25 @@ const App = () => {
     setWishes(newWishes);
     // backend
     BackendWish.remove(id);
+  };
+
+  // ----------------------------- ADMIN view
+  const [users, setUsers] = useState([]);
+
+  useEffect(async () => {
+    // fetch users only for admin
+    if (loggedUser.role === 0) {
+      setUsers(await BackendUser.getAll());
+    }
+  }, [loggedUser]);
+
+  // event handler for deleting user
+  const delUser = (id) => {
+    // frontend
+    const newUsers = users.filter((user) => user.id !== id);
+    setUsers(newUsers);
+    // backend
+    BackendUser.remove(id);
   };
 
   // state hooks and input event handlers for wish form input
@@ -385,6 +455,10 @@ const App = () => {
       if (loggedUser.role === 2) {
         return <Redirect to='../' />;
       }
+      // admin
+      if (loggedUser.role === 0) {
+        return <Redirect to='../admin' />;
+      }
     } else {
       return <div>
         <button onClick={() => setLoginView(0)}>Register</button>
@@ -416,6 +490,50 @@ const App = () => {
 
   // functional component returning links and form for wisher page
   const WisherPage = () => {
+    // console.log('at wisherpage logged user is', loggedUser);
+    // console.log('at wisherpage wisher is', wisher);
+    // // redirect unlogged users
+    // if (!loggedUser.username || loggedUser.username.length < 1) {
+    //   return <Redirect to='../login' />;
+    // }
+
+    // // redirect santa
+    // if (loggedUser.role === 2) {
+    //   return <Redirect to='../' />;
+    // }
+
+    // // redirect admin
+    // if (loggedUser.role === 0 && !wisher) {
+    //   console.log('wisher redirects to admin for wisher', wisher);
+    //   return <Redirect to='../admin' />;
+    // }
+
+    const element = <div>
+      {loggedUser.role === 0 ? ToAdminButton(setWisher) : null}
+      <h2 className='main-title'>Generate invite link</h2>
+      <button onClick={() => generateInvite(loggedUser)}>Invite</button>
+      <WishForm
+        addWish={formSubmitHandler}
+        nameHolder={nameHolder}
+        nameHandler={nameHandler}
+        descriptionHandler={descriptionHandler}
+        descriptionHolder={descriptionHolder}
+        urlHandler={urlHandler}
+        urlHolder={urlHolder}
+      />
+    </div>;
+
+    return loggedUser.role === 1 ? element : null;
+  };
+
+  const AskLogin = () => {
+    // redirect unlogged users
+    if (!loggedUser.username || loggedUser.username.length < 1) {
+      return <Redirect to='../login' />;
+    }
+  };
+
+  const AdminPage = () => {
     // redirect unlogged users
     if (!loggedUser.username || loggedUser.username.length < 1) {
       return <Redirect to='../login' />;
@@ -426,56 +544,50 @@ const App = () => {
       return <Redirect to='../' />;
     }
 
-    // links for admin dev
-    // <Link to='/'>santa</Link>
-    // <Link to='/login'>login</Link>
+    // redirect wisher
+    if (loggedUser.role === 1) {
+      return <Redirect to='../wisher' />;
+    }
 
-    return <div>
-    <h2 className='main-title'>Generate invite link</h2>
-    <button onClick={() => generateInvite(loggedUser)}>Invite</button>
-    <WishForm
-      addWish={formSubmitHandler}
-      nameHolder={nameHolder}
-      nameHandler={nameHandler}
-      descriptionHandler={descriptionHandler}
-      descriptionHolder={descriptionHolder}
-      urlHandler={urlHandler}
-      urlHolder={urlHolder}
-    />
-  </div>;
+    // redirect admin to see wishes after wisher set
+    if (wisher && wisher.username) {
+      return <Redirect to='../' />;
+    }
+
+    const page = <div>
+      {LogOutButton(logUser)}
+      <table className='the-table'>
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Delete</th>
+            <th>Wishes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => UserRow(user, delUser, setUserAsWisher))}
+        </tbody>
+      </table>
+    </div>;
+
+    // users grouped by wisher
+    return page;
   };
-
-  // -||- santa page
-  // const SantaPage = () => {
-  //   // redirect unlogged users
-  //   if (!loggedUser.username || loggedUser.username.length < 1) {
-  //     return <Redirect to='../login' />;
-  //   }
-
-  //   // redirect wisher
-  //   if (loggedUser.role === 1) {
-  //     return <Redirect to='../wisher' />;
-  //   }
-
-  //   return <div>
-  //   <Link to='/wisher'>wisher</Link>
-  //   <Link to='/login'>login</Link>
-  // </div>;
-  // };
 
   return (
     <BrowserRouter>
       <div>
         <Switch>
+          <Route path='/admin'>
+            {AdminPage()}
+          </Route>
           <Route path='/login'>
             {loginView === 1 ? LoginPage() : RegisterPage()}
           </Route>
           <Route path='/'>
-            <Switch>
-              <Route path='/'>
-                {WisherPage()}
-              </Route>
-            </Switch>
+            {AskLogin()}
+            {LogOutButton(logUser)}
+            {WisherPage()}
             <h1 className='main-title'>Christmas wish list 2020</h1>
             <table className='the-table'>
               <thead>

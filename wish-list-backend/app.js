@@ -8,7 +8,7 @@ const config = require('./utils/config');
 // const http = require('http')
 // intialise Express application
 const app = express();
-// intialise the router specified
+// intialize the router specified
 const wishRouter = require('./controllers/wishes');
 const userRouter = require('./controllers/users');
 const loginRouter = require('./controllers/login');
