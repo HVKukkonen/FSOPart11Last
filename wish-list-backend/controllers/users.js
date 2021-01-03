@@ -45,4 +45,27 @@ userRouter.delete('/:id', async (request, response, next) => {
   }
 });
 
+// update
+userRouter.put('/:id', (request, response, next) => {
+  // note how undefined are omitted below
+  const user = {
+    username: request.body.username,
+    role: request.body.role,
+    style: request.body.style,
+    linkedUsers: request.body.linkedUsers,
+    invitePass: request.body.invitePass,
+    wish: request.body.wish,
+  };
+
+  User
+    // findByIdAndUpdate uses $set as default,
+    // thus, unspecified fields will stay intact as long as they are dropped using omitUndefined
+    .findByIdAndUpdate(request.params.id, user, { new: true, omitUndefined: true })
+    // event handler for the returned promise,
+    // result of the operation is in the callback paramater updatedUser
+    // which is included in the response for frontend use
+    .then((updatedUser) => response.json(updatedUser))
+    .catch((error) => next(error));
+});
+
 module.exports = userRouter;

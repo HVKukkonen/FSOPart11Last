@@ -6,8 +6,6 @@ const wishRouter = require('express').Router();
 const WishedItem = require('../models/wish');
 
 wishRouter.get('/:wisherId', (request, response, next) => {
-  console.log('get received at wish backend for request:', request.params.wisherId);
-
   // request contains the wisher (maybe != logged user)
   WishedItem
     .find({ wisher: request.params.wisherId })
@@ -15,13 +13,11 @@ wishRouter.get('/:wisherId', (request, response, next) => {
       response.json(wishes);
     })
     .catch((exception) => {
-      console.log('exception at wishrouter GET');
       next(exception);
     });
 });
 
 wishRouter.post('/', (request, response) => {
-  console.log('Backend: Post received with request', request.body);
   const newWish = new WishedItem(request.body);
 
   // mongoose wish object interacts with the db

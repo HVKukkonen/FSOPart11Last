@@ -24,6 +24,7 @@ const userSchema = mongoose.Schema({
   linkedUsers: { type: mongoose.Schema.Types.ObjectId, ref: 'LinkedUser' },
   invitePass: { type: String },
   wish: { type: mongoose.Schema.Types.ObjectId, ref: 'Wish' },
+  style: { type: Object },
 });
 
 userSchema.plugin(uniqueValidator);

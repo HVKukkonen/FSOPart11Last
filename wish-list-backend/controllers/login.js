@@ -19,6 +19,9 @@ loginRouter.post('/', async (request, response) => {
   } else {
     const user = await User.findOne({ username: request.body.username });
 
+    console.log('request.body', request.body);
+    console.log('user at back', user);
+
     const passwordCorrect = (user === null)
       ? false
       : await bcryptjs.compare(request.body.password, user.password);
