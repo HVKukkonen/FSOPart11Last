@@ -11,7 +11,8 @@
     "copy:build": "xcopy \"../wish-list-frontend/build\" \"./build\" /Y/E/I",
     "push:backend": "git add . && git commit -m heroku_add && git push",
     "push:heroku": "cd .. && git subtree push --prefix wish-list-backend heroku main",
-    "deploy:full": "npm run build:ui && npm run copy:build && npm run push:backend && npm run push:heroku",
+    "deploy:full": "npm run build:ui && npm run copy:build && npm run push:backend && npm run remote:heroku && npm run push:heroku",
+    "remote:heroku": "heroku git:remote -a christmas-wish-list",
     "logs:prod": "heroku logs --tail"
   },
   "keywords": [

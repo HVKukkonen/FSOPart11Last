@@ -6,6 +6,8 @@ require('dotenv').config();
 const User = require('../models/user');
 
 loginRouter.post('/', async (request, response) => {
+  console.log('login post with sec', process.env.SECRET);
+  console.log('login post with admin_sec', process.env.ADMIN_SECRET);
   // request for admin creation
   if (request.body.adminSecret) {
     if (request.body.adminSecret === process.env.ADMIN_SECRET) {
