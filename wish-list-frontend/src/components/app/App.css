@@ -7,6 +7,11 @@
   font-family: 'URW Chancery L', cursive;
 }
 
+.other-title {
+  color: #e4113e;
+  font-family: 'URW Chancery L', cursive;
+}
+
 /* .common-font {
   color: #e4113e
 } */
@@ -80,3 +85,22 @@
 /* .the-table tbody tr:last-of-type {
   border-bottom: 2px solid #e4113e;
 } */
+
+.instructions {
+  padding: 50px;
+  float: right;
+  width: 900px;
+  font-size: 20px;
+}
+
+.wish-description {
+  width: 690px;
+  height: 100px;
+  margin-top: 1px;
+  margin-bottom: 10px;
+}
+
+.wish-url {
+  width: 690px;
+  margin-bottom: 20px;
+}

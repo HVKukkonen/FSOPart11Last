@@ -8,6 +8,7 @@ import { BackendWish } from '../../api/services/wishes';
 import { BackendUser } from '../../api/services/users';
 import { BackendLogin } from '../../api/services/login';
 import './App.css';
+import 'jquery';
 
 const bcryptjs = require('bcryptjs');
 const generatePassword = require('generate-password');
@@ -15,24 +16,24 @@ const generatePassword = require('generate-password');
 // --------------------------- form (visible: WISHER) -------------------------------------
 const WishForm = (props) => <form onSubmit={props.addWish}>
   <div>
-    <h2 className='main-title'>Add wish</h2>
-    name:{'\xa0'}
-    <input
-      value={props.nameHolder}
-      onChange={props.nameHandler}
-    />
-    <br />
-    description:{'\xa0'}
-    <input
-      value={props.descriptionHolder}
-      onChange={props.descriptionHandler}
-    />
-    <br />
-    url:{'\xa0'}
-    <input
-      value={props.urlHolder}
-      onChange={props.urlHandler}
-    />
+    <div>
+      <h2 className='other-title'>Add wish</h2>
+      description
+      <br />
+      <textarea
+        className='wish-description'
+        value={props.descriptionHolder}
+        onChange={props.descriptionHandler}
+      />
+    </div>
+    <div>
+      url<br />
+      <input
+        className='wish-url'
+        value={props.urlHolder}
+        onChange={props.urlHandler}
+      />
+    </div>
   </div>
   <div>
     <button type='submit'>
@@ -60,6 +61,7 @@ const RegisterForm = (props) => <form onSubmit={props.loginFormAction}>
   <input
     value={props.inviteHolder}
     onChange={props.inviteHandler}
+    placeholder={'if wisher leave empty'}
   />
   <br />
   <button type='submit'>
@@ -87,7 +89,7 @@ const LoginForm = (props) => <form onSubmit={props.loginFormAction}>
 </form>;
 
 // wish object creator, handles creation of new wishes and wishes from database query
-const createWish = (name, description, url, taken, wisher, taker, dbId) => {
+const createWish = (description, url, taken, wisher, taker, dbId) => {
   // use mongodb id for existing wishes, generate one for new; for DEV with dummy data only
   // const id = dbId || Math.random();
 
@@ -95,7 +97,6 @@ const createWish = (name, description, url, taken, wisher, taker, dbId) => {
   const wish = {
     key: dbId,
     id: dbId,
-    name,
     description,
     url,
     taken,
@@ -106,13 +107,14 @@ const createWish = (name, description, url, taken, wisher, taker, dbId) => {
   return wish;
 };
 
-const createUser = (username, password, role, linkedUsers, invitePass, wish, dbID) => {
+const createUser = (username, password, role, linkedUsers, style, invitePass, wish, dbID) => {
   const user = {
     key: dbID,
     id: dbID,
     username,
     password,
     role,
+    style,
     linkedUsers,
     invitePass,
     wish,
@@ -135,19 +137,28 @@ const Display = (text) => <div className='display'>
 </div>;
 
 // formats wish item into data row, different formatting based on taken status
-const FormatRow = (wish, functionality, buttonname, hoverFunction, showTaken) => <tr className={(wish.taken === 1 && showTaken) ? 'taken-row' : 'untaken-row'}>
-  <td>{wish.name}</td>
-  <td onMouseOver={() => hoverFunction(wish.description)}>{wish.description}</td>
-  <td className='url'><a href={wish.url} target='_blank'>{wish.url}</a></td>
-  <td><button onClick={() => functionality(wish.id)}>{buttonname}</button></td>
-</tr>;
+const FormatRow = (wish, functionality, buttonname, hoverFunction, loggedUser) => {
+  let buttonElement;
+  // dont give button for taken wishes with taker other than loggedin
+  if (!(wish.taken === 1 && wish.taker !== loggedUser.id)) {
+    buttonElement = <button onClick={() => functionality(wish.id)}>{buttonname}</button>;
+  }
+
+  return (
+  <tr className={(wish.taken === 1 && loggedUser.role !== 1) ? 'taken-row' : 'untaken-row'}>
+    <td onMouseOver={() => hoverFunction(wish.description)}>{wish.description}</td>
+    <td className='url'><a href={wish.url} target='_blank'>{wish.url}</a></td>
+    <td>{buttonElement}</td>
+  </tr>
+  );
+};
 // ----------------------------------------------------------------------------------------------
 
 // display user for admin view
-const UserRow = (user, functionality, showUserWishes) => <tr className='untaken-row'>
+const UserRow = (user, functionality, showWishes) => <tr className='untaken-row'>
   <td>{user.username}</td>
   <td><button onClick={() => functionality(user.id)}>delete</button></td>
-  <td><button onClick={() => showUserWishes(user)}>wishes</button></td>
+  {user.role === 1 ? <td><button onClick={() => showWishes(user.id)}>wishes</button></td> : null}
 </tr>;
 
 // logout
@@ -166,11 +177,18 @@ const ToAdminButton = (setWisher) => {
   // reset wisher and redirect
   const resetWisher = () => {
     setWisher({});
-    return <Redirect to='../admin' />;
+    // not coming through
+    // return <Redirect to='../admin' />;
   };
 
   return <button onClick={() => resetWisher()}>Admin</button>;
 };
+
+// toggle title editing
+const editTitleButton = (editable, toggleAndSave) => <button
+  onClick={() => toggleAndSave()}>
+  {editable ? 'save' : 'edit'}
+</button>;
 
 const App = () => {
   // for sanitising user input
@@ -221,6 +239,10 @@ const App = () => {
     }
 
     let newUser;
+    // json object specifying style elements, only for wisher
+    const style = {
+      title: 'Christmas Wish List',
+    };
 
     // parse wisher from invite string
     // invite string is of form 'invitePasswordHash/wisher_dbID
@@ -271,12 +293,11 @@ const App = () => {
       // no invite string input --> generate wisher
       const invitePass = generatePassword.generate();
       newUser = await BackendUser
-        .create(createUser(usernameHolder, passwordHolder, 1, null, invitePass));
+        .create(createUser(usernameHolder, passwordHolder, 1, null, style, invitePass));
     }
 
     // redirect after successful registering
     if (newUser) {
-      // setUsername(''); setPassword(''); setInvite('');
       // redirect to login after registering
       setLoginView(1);
       // window.location = '../login';
@@ -311,33 +332,49 @@ const App = () => {
     const response = await BackendLogin.requestToken(inputUser);
     if (response) {
       logUser(response.data.user);
-      console.log('user logged details:', response.data.user);
       setToken(response.data.token);
       // remember session
       window.localStorage.setItem('user', JSON.stringify(response.data.user));
       window.localStorage.setItem('token', JSON.stringify(response.data.user));
+
+      // clear form
+      setUsername(''); setPassword('');
     }
   };
 
   // wisher for showing relevant wishes
   const [wisher, setWisher] = useState({});
 
-  // set the user the given user as wisher,
+  // set the given user as wisher,
   // needed for cases where wisher is not the user logged in
-  const setUserAsWisher = async (user) => {
-    setWisher(await BackendUser.getOne(user.id));
-  };
+  const setUserAsWisher = async (userid) => setWisher(await BackendUser.getOne(userid));
 
   // load wisher information from server
-  useEffect(async () => {
+  useEffect(() => {
     // logged in user is wisher
     if (loggedUser.role === 1) {
       setWisher(loggedUser);
     } else if (loggedUser.role === 2) {
       // logged in user is Santa
-      await setUserAsWisher(loggedUser.linkedUsers);
+      setUserAsWisher(loggedUser.linkedUsers);
     }
   }, [loggedUser]); // run effect after login
+
+  // toggle title editing
+  const [editTitle, setEdit] = useState(false);
+
+  // toggle editability and save after edit
+  const toggleAndSave = async () => {
+    // save only if title has been editable
+    if (editTitle) {
+      const title = document.querySelector('.main-title').innerText;
+      const updated = wisher;
+      updated.style.title = title;
+      setWisher(await BackendUser.update(wisher.id, updated));
+    }
+
+    setEdit(!editTitle);
+  };
 
   // ----------------------------------------------WISHES---------------------------
   // state hook
@@ -347,7 +384,6 @@ const App = () => {
   useEffect(async () => {
     // fetch wishes only if wisher exists
     if (wisher && wisher.username && wisher.username.length > 0) {
-      console.log('useEffect load of wishes for', wisher);
       const response = await BackendWish
         .getForWisher(wisher.id); // get only wishes of the wisher
       // .then((response) => setWishes(response)); // save the response of the promise
@@ -386,8 +422,8 @@ const App = () => {
 
   // state hooks and input event handlers for wish form input
   // name
-  const [nameHolder, setName] = useState('');
-  const nameHandler = (charEvent) => setName(charEvent.target.value);
+  // const [nameHolder, setName] = useState('');
+  // const nameHandler = (charEvent) => setName(charEvent.target.value);
   // description
   const [descriptionHolder, setDescription] = useState('');
   const descriptionHandler = (charEvent) => setDescription(charEvent.target.value);
@@ -402,13 +438,13 @@ const App = () => {
 
     // format input into proper object, update backend
     BackendWish
-      .create(createWish(nameHolder, descriptionHolder, urlHolder, 0, wisher.id))
+      .create(createWish(descriptionHolder, urlHolder, 0, wisher.id))
       // concat returned object to wishes, return object has id given by the db
       .then((response) => setWishes(wishes.concat(response.data)));
 
     console.log('latest wish not for console?', wishes);
     // reset input fields
-    setName(''); setDescription(''); setUrl('');
+    setDescription(''); setUrl('');
   };
 
   // ---------------------------- Santa Claus ---------------------
@@ -462,7 +498,7 @@ const App = () => {
     } else {
       return <div>
         <button onClick={() => setLoginView(0)}>Register</button>
-        <h2 className='main-title'>Login</h2>
+        <h2 className='other-title'>Login</h2>
         <LoginForm
           loginFormAction={loginFormSubmission}
           usernameHolder={usernameHolder}
@@ -470,13 +506,17 @@ const App = () => {
           passwordHolder={passwordHolder}
           passwordHandler={passwordHandler}
         />
+        <aside className='instructions'>
+          This is the log in page. To create a new user, please,
+          navigate to the registration page on the top left corner.
+        </aside>
       </div>;
     }
   };
 
   const RegisterPage = () => <div>
     <button onClick={() => setLoginView(1)}>Login</button>
-    <h2 className='main-title'>Register</h2>
+    <h2 className='other-title'>Register</h2>
     <RegisterForm
       loginFormAction={registerFormSubmission}
       usernameHolder={usernameHolder}
@@ -486,12 +526,14 @@ const App = () => {
       inviteHolder={inviteHolder}
       inviteHandler={inviteHandler}
     />
+    <aside className='instructions'>Here you can register. There are two kinds of users;
+    the ones making the wishes (1) and the ones fulfilling them (2). Let's call them types 1 and 2,
+    respectively. The creation of a type 2 user requires an invite from a type 1 user.
+    If no invite is provided, a user of type 1 is created. </aside>
   </div>;
 
-  // functional component returning links and form for wisher page
-  const WisherPage = () => {
-    // console.log('at wisherpage logged user is', loggedUser);
-    // console.log('at wisherpage wisher is', wisher);
+  // functional component returning wish form
+  const WishCreator = () => {
     // // redirect unlogged users
     // if (!loggedUser.username || loggedUser.username.length < 1) {
     //   return <Redirect to='../login' />;
@@ -509,13 +551,10 @@ const App = () => {
     // }
 
     const element = <div>
-      {loggedUser.role === 0 ? ToAdminButton(setWisher) : null}
-      <h2 className='main-title'>Generate invite link</h2>
+      <h2 className='other-title'>Generate invite link</h2>
       <button onClick={() => generateInvite(loggedUser)}>Invite</button>
       <WishForm
         addWish={formSubmitHandler}
-        nameHolder={nameHolder}
-        nameHandler={nameHandler}
         descriptionHandler={descriptionHandler}
         descriptionHolder={descriptionHolder}
         urlHandler={urlHandler}
@@ -526,10 +565,15 @@ const App = () => {
     return loggedUser.role === 1 ? element : null;
   };
 
-  const AskLogin = () => {
+  const Redirects = () => {
     // redirect unlogged users
     if (!loggedUser.username || loggedUser.username.length < 1) {
       return <Redirect to='../login' />;
+    }
+
+    // return admin to correct page after button pressed
+    if (loggedUser.role === 0 && Object.keys(wisher).length === 0) {
+      return <Redirect to='../admin' />;
     }
   };
 
@@ -574,9 +618,46 @@ const App = () => {
     return page;
   };
 
+  const MainTitle = () => <h1>
+    <span
+      className='main-title'
+      contentEditable={editTitle}
+    >
+      {wisher.style.title}
+    </span>
+    {loggedUser.role === 1 ? editTitleButton(editTitle, toggleAndSave) : null}
+  </h1>;
+
+  const Instructions = () => {
+    const toWisher = <aside className='instructions'>
+      "Generate invite link" creates the invite needed to add type 2 users.
+      To add a user, send her the invite and instruct to provide it at registration.
+       Please, note that all users use the same invite. <br />
+      The form enables adding wishes. All users created using the invite
+      will be able to see the table below but not modify the wishes. They can claim wishes but
+       you won't be shown what is claimed. Also, don't worry about descriptions being too lengthy.
+       They are displayed in full to your type 2 users. Note that you can customise the table header
+       that is displayed to your type 2 users.
+    </aside>;
+
+    const toSanta = <aside className='instructions'>
+      Use the buttons to indicate the wishes you wish to fulfill. Don't worry,
+      this information is not visible to the wisher.
+      You can hover over lenghty descriptions to display them in full.
+    </aside>;
+
+    if (loggedUser.role === 1) {
+      return toWisher;
+    }
+
+    if (loggedUser.role === 2) {
+      return toSanta;
+    }
+  };
+
   return (
     <BrowserRouter>
-      <div>
+
         <Switch>
           <Route path='/admin'>
             {AdminPage()}
@@ -585,15 +666,16 @@ const App = () => {
             {loginView === 1 ? LoginPage() : RegisterPage()}
           </Route>
           <Route path='/'>
-            {AskLogin()}
+            {Redirects()}
             {LogOutButton(logUser)}
-            {WisherPage()}
-            <h1 className='main-title'>Christmas wish list 2020</h1>
+            {Instructions()}
+            {WishCreator()}
+            {loggedUser.role === 0 ? ToAdminButton(setWisher) : null}
+            {Object.keys(wisher).length > 0 ? MainTitle() : null}
             <table className='the-table'>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Description</th>
+                  <th>Wish</th>
                   <th>URL</th>
                   <th>Function</th>
                 </tr>
@@ -601,23 +683,22 @@ const App = () => {
               <tbody>
                 <Switch>
                   <Route path='/wisher'>
-                    {wishes.map((wish) => FormatRow(wish, delWish, 'delete', setDisplay, loggedUser.role !== 1))}
+                    {wishes.map((wish) => FormatRow(wish, delWish, 'delete', hoverFunction, loggedUser))}
                   </Route>
                   <Route path='/'>
-                    {wishes.map((wish) => FormatRow(wish, take, (wish.taken === 0) ? 'take' : 'untake', hoverFunction, loggedUser.role !== 1))}
+                    {wishes.map((wish) => FormatRow(wish, take, (wish.taken === 0) ? 'take' : 'untake', hoverFunction, loggedUser))}
                   </Route>
                 </Switch>
               </tbody>
             </table>
             <Switch>
-              <Route path='/wisher'></Route>
               <Route path='/'>
                 <Display text={displayText}></Display>
               </Route>
             </Switch>
           </Route>
         </Switch>
-      </div>
+
     </BrowserRouter>
   );
 };

@@ -17,7 +17,8 @@ const create = (newObject) => axios
     userErrorHandler(exception);
   });
 
-const update = (id, newObject) => axios.put(`${baseUrl}/${id}`, newObject);
+const update = (id, newObject) => axios.put(`${baseUrl}/${id}`, newObject)
+  .then((response) => response.data);
 
 const remove = (id) => axios.delete(`${baseUrl}/${id}`);
 
