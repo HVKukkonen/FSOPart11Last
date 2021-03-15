@@ -5,5 +5,7 @@ The service is running at: http://christmas-wish-list.herokuapp.com/ (given I ha
 
 Sources:
 https://fullstackopen.com/
+
 https://dev.to/dcodeyt/creating-beautiful-html-tables-with-css-428l
+
 https://stackoverflow.com/questions/31669939/clip-long-text-inside-html-table-cells-show-entire-content-on-hover
