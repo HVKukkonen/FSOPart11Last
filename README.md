@@ -1,5 +1,5 @@
 # christmas-wish-list
-I built a Christmas wish list web application for personal use in December 2020. But over the Christmas holidays I got the idea that it would be fun to try out developing it further into a useable – although bare bones – web application. I use MongoDB Atlas for data storage and Heroku to host the service. The application handles identity management enabling users to create wish lists and invite friends that see and can claim these wishes.
+I built a Christmas wish list web application for personal use in December 2020. But over the Christmas holidays I got the idea that it would be fun to try out developing it further. Thus, the application now handles identity management enabling users to create wish lists and invite friends that see and can claim these wishes. I use MongoDB Atlas for data storage and Heroku to host the service.
 
 The service is running at: http://christmas-wish-list.herokuapp.com/ (given I have still capacity left on my free Heroku dyno...)
 
