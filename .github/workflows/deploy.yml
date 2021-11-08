@@ -6,6 +6,6 @@ runs-on: ubuntu-latest
 
 jobs:
   heroku-deployment:
-    run: |
-      echo "Hello World!"
-      
+    steps:
+      run: |
+        echo "Hello World!"
