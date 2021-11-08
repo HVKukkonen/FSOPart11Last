@@ -13,7 +13,8 @@
     "push:heroku": "cd .. && git subtree push --prefix wish-list-backend heroku main",
     "deploy:full": "npm run build:ui && npm run copy:build && npm run push:backend && npm run remote:heroku && npm run push:heroku",
     "remote:heroku": "heroku git:remote -a christmas-wish-list",
-    "logs:prod": "heroku logs --tail"
+    "logs:prod": "heroku logs --tail",
+    "push:full": "npm run build:ui && npm run copy:build && npm run push:backend"
   },
   "keywords": [
     "boss",
