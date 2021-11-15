@@ -15,7 +15,8 @@
     "remote:heroku": "heroku git:remote -a christmas-wish-list",
     "logs:prod": "heroku logs --tail",
     "push:full": "cd .. && git add . && cd ./wish-list-backend && npm run build:ui && npm run copy:build && npm run push:backend",
-    "cypress:open": "cypress open"
+    "cypress:open": "cypress open",
+    "start:front": "npm run start --prefix ./wish-list-frontend"
   },
   "keywords": [
     "boss",

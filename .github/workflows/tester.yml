@@ -19,3 +19,4 @@ jobs:
           command: npm run cypress:run
           start: npm run prod, npm run start:front
           wait-on: http://localhost:3003, http://localhost:3000
+          working-directory: wish-list-backend
