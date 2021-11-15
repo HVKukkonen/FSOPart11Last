@@ -13,7 +13,7 @@ jobs:
         uses: cypress-io/github-action@v2
         env:
           ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
-          DBPASSWORDPROD: ${{ secrets.DBPASSWORDPROD }}
+          DbPassword: ${{ secrets.DBPASSWORD }}
           SECRET: ${{ secrets.SECRET }}
         with:
           command: npm run cypress:run
