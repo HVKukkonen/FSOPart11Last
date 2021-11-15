@@ -4,8 +4,8 @@
   "description": "frontend of the christmas wish list 2020 project",
   "main": "node build/index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "test": "cypress run",
+    "prod": "cross-env NODE_ENV=development nodemon index.js",
     "lint": "eslint .",
     "build:ui": "cd ../wish-list-frontend && npm run build --prod",
     "copy:build": "xcopy \"../wish-list-frontend/build\" \"./build\" /Y/E/I",
@@ -14,7 +14,8 @@
     "deploy:full": "npm run build:ui && npm run copy:build && npm run push:backend && npm run remote:heroku && npm run push:heroku",
     "remote:heroku": "heroku git:remote -a christmas-wish-list",
     "logs:prod": "heroku logs --tail",
-    "push:full": "cd .. && git add . && cd ./wish-list-backend && npm run build:ui && npm run copy:build && npm run push:backend"
+    "push:full": "cd .. && git add . && cd ./wish-list-backend && npm run build:ui && npm run copy:build && npm run push:backend",
+    "cypress:open": "cypress open"
   },
   "keywords": [
     "boss",
@@ -32,6 +33,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "cypress": "^9.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
