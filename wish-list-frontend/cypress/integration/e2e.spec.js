@@ -8,8 +8,8 @@ describe('e2e testing', () => {
 
   it('log in', () => {
     cy.visit(config.testTarget)
-    cy.get('input[name=username]').type('autotester')
-    cy.get('input[name=password]').type('at1{enter}')
+    cy.get('[data-cy=login-username]').type('autotester')
+    cy.get('[data-cy=login-password]').type('at1{enter}')
     cy.url().should('include', '/wisher')
   })
 })

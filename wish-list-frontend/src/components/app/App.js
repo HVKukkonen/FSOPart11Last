@@ -73,12 +73,14 @@ const RegisterForm = (props) => <form onSubmit={props.loginFormAction}>
 const LoginForm = (props) => <form onSubmit={props.loginFormAction}>
   username:{'\xa0'}
   <input
+    data-cy='login-username'
     value={props.usernameHolder}
     onChange={props.usernameHandler}
   />
   <br />
   password:{'\xa0'}
   <input
+    data-cy='login-password'
     value={props.passwordHolder}
     onChange={props.passwordHandler}
   />

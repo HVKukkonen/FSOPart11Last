@@ -12,16 +12,26 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
+      - name: start backend
+        working-directory: ./wish-list-backend
+        env:
+          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
+          DbPassword: ${{ secrets.DBPASSWORD }}
+          SECRET: ${{ secrets.SECRET }}
+        run: |
+          npm install
+          npm run prod &
       - name: e2e test
         uses: cypress-io/github-action@v2
         env:
           ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
-          DBPASSWORDPROD: ${{ secrets.DBPASSWORDPROD }}
+          DbPassword: ${{ secrets.DBPASSWORD }}
           SECRET: ${{ secrets.SECRET }}
         with:
           command: npm run cypress:run
-          start: npm run prod, npm run start:front
-          wait-on: http://localhost:3003, http://localhost:3000
+          start: npm start
+          wait-on: http://localhost:3003
+          working-directory: wish-list-frontend
 
   tag_release:
     if: github.event_name == 'push' && !contains(github.event.commits.*.message[0], '#skip')
