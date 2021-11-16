@@ -18,3 +18,5 @@ jobs:
         run: |
           npm install
           npm run prod
+      - name: test continue
+        run: echo "continued"
