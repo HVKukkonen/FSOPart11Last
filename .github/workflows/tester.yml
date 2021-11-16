@@ -17,6 +17,6 @@ jobs:
           SECRET: ${{ secrets.SECRET }}
         run: |
           npm install
-          npm run prod
+          npm run prod &
       - name: test continue
         run: echo "continued"
