@@ -1,13 +1,10 @@
-name: Deploy
+name: Tester
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, synchronize]
+  push
 
 jobs:
-  pre_deployment_test:
-    if: ${{ github.event_name != 'push' }}
+  testing_pre_deployment_test:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -32,13 +29,3 @@ jobs:
           start: npm start
           wait-on: http://localhost:3003
           working-directory: wish-list-frontend
-
-  tag_release:
-    if: github.event_name == 'push' && !contains(github.event.commits.*.message[0], '#skip')
-    steps:
-      - uses: actions/checkout@v2
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.33.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEFAULT_BUMP: patch

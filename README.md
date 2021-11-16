@@ -1,12 +1,5 @@
-# christmas-wish-list
-I built a Christmas wish list web application for personal use in December 2020. But over the Christmas holidays I got the idea that it would be fun to try out developing it further. Thus, the application now handles identity management enabling users to create wish lists and invite friends that see and can claim these wishes. I use MongoDB Atlas for data storage and Heroku to host the service.
+# [Full Stack Open 2021](https://fullstackopen.com/en/)
 
-The service is running at: http://christmas-wish-list.herokuapp.com/ (given I have still capacity left on my free Heroku dyno...)
+This repository contains my solution to the last exercise of the part 11 of the Full Stack Open (2021) course by the University of Helsinki. The rest of the exercises for part 11 can be found [here](https://github.com/HVKukkonen/full-stack-open-pokedex).
 
-Sources:
-
-https://fullstackopen.com/
-
-https://dev.to/dcodeyt/creating-beautiful-html-tables-with-css-428l
-
-https://stackoverflow.com/questions/31669939/clip-long-text-inside-html-table-cells-show-entire-content-on-hover
+This exercise is a modification of my personal project. In this exercise I implement a continuous integration workflow using Github Actions and Heroku auto-deployment. The deployment pipeline contains automated version tagging as well as end-to-end testing. The deployed application can be found [here](http://christmas-wish-list.herokuapp.com).

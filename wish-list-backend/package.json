@@ -4,8 +4,7 @@
   "description": "frontend of the christmas wish list 2020 project",
   "main": "node build/index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "prod": "cross-env NODE_ENV=development node index.js",
     "lint": "eslint .",
     "build:ui": "cd ../wish-list-frontend && npm run build --prod",
     "copy:build": "xcopy \"../wish-list-frontend/build\" \"./build\" /Y/E/I",
@@ -14,7 +13,8 @@
     "deploy:full": "npm run build:ui && npm run copy:build && npm run push:backend && npm run remote:heroku && npm run push:heroku",
     "remote:heroku": "heroku git:remote -a christmas-wish-list",
     "logs:prod": "heroku logs --tail",
-    "push:full": "cd .. && git add . && cd ./wish-list-backend && npm run build:ui && npm run copy:build && npm run push:backend"
+    "push:full": "cd .. && git add . && cd ./wish-list-backend && npm run build:ui && npm run copy:build && npm run push:backend",
+    "start:front": "npm run start --prefix ../wish-list-frontend"
   },
   "keywords": [
     "boss",
@@ -37,6 +37,7 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.10.14",
     "mongoose-unique-validator": "^2.0.3",
+    "node": "^17.1.0",
     "react-scripts": "^4.0.0"
   }
 }
