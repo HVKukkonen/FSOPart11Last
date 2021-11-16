@@ -1,6 +1,5 @@
 import config from '../config';
 
-
 describe('e2e testing', () => {
   it('arrive at login', () => {
     cy.visit(config.testTarget)
