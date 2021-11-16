@@ -13,7 +13,10 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '17'
-        run: npm install, npm start
+          cache: 'npm'
+          cache-dependency-path: wish-list-backend/package-lock.json
+      - run: npm install
+      - run: npm run prod
       - name: e2e test
         uses: cypress-io/github-action@v2
         env:
