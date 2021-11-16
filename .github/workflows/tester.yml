@@ -9,14 +9,6 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v2
-      - name: e2e test
-        uses: cypress-io/github-action@v2
-        env:
-          ADMIN_SECRET: ${{ secrets.ADMIN_SECRET }}
-          DbPassword: ${{ secrets.DBPASSWORD }}
-          SECRET: ${{ secrets.SECRET }}
-        with:
-          command: npm run cypress:run
-          start: npm run prod, npm run start:front
-          wait-on: http://localhost:3003, http://localhost:3000
-          working-directory: wish-list-backend
+      - name: start backend
+        run: npm run prod
+        working-directory: ./wish-list-backend
