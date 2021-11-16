@@ -35,6 +35,7 @@ jobs:
 
   tag_release:
     if: github.event_name == 'push' && !contains(github.event.commits.*.message[0], '#skip')
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
       - name: Bump version and push tag
